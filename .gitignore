@@ -1,0 +1,10 @@
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+code
+*.o
+*.out
+*.dat
+*.txt
+*.log
+submission_ids.log
