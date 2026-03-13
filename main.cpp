@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstdio>
+#include <cstdlib>
 
 using std::string;
 using std::cin;
@@ -109,7 +110,7 @@ string getParam(const string& line, char key) {
 
     pos += target.length();
     size_t end = pos;
-    while (end < line.length() && line[end] != ' ' && line[end] != '-') {
+    while (end < line.length() && line[end] != ' ') {
         if (line[end] == '-' && end + 1 < line.length() && line[end+1] >= 'a' && line[end+1] <= 'z') {
             break;
         }
@@ -232,8 +233,8 @@ void handleQueryProfile(const string& line) {
         return;
     }
 
-    printf("%s %s %s %d\n", users[uidx].username, users[uidx].name,
-           users[uidx].mailAddr, users[uidx].privilege);
+    cout << users[uidx].username << " " << users[uidx].name << " "
+         << users[uidx].mailAddr << " " << users[uidx].privilege << "\n";
 }
 
 void handleModifyProfile(const string& line) {
@@ -276,8 +277,8 @@ void handleModifyProfile(const string& line) {
     if (!n.empty()) strcpy(users[uidx].name, n.c_str());
     if (!m.empty()) strcpy(users[uidx].mailAddr, m.c_str());
 
-    printf("%s %s %s %d\n", users[uidx].username, users[uidx].name,
-           users[uidx].mailAddr, users[uidx].privilege);
+    cout << users[uidx].username << " " << users[uidx].name << " "
+         << users[uidx].mailAddr << " " << users[uidx].privilege << "\n";
 }
 
 void handleAddTrain(const string& line) {
@@ -394,12 +395,14 @@ void handleQueryTrain(const string& line) {
 
     if (i.empty() || d.empty()) {
         cout << "-1\n";
+        cout.flush();
         return;
     }
 
     int idx = findTrain(i.c_str());
     if (idx == -1) {
         cout << "-1\n";
+        cout.flush();
         return;
     }
 
@@ -407,39 +410,45 @@ void handleQueryTrain(const string& line) {
     int qmonth, qday;
     parseDate(d, qmonth, qday);
 
-    printf("%s %c\n", train.trainID, train.type);
+    cout << train.trainID << " " << train.type << "\n";
 
-    int month = qmonth, day = qday;
+    int month = qmonth;
+    int day = qday;
     int hour = train.startHour, min = train.startMin;
     int totalPrice = 0;
 
     for (int j = 0; j < train.stationNum; j++) {
-        printf("%s ", train.stations[j]);
+        cout << train.stations[j] << " ";
 
         if (j == 0) {
-            printf("xx-xx xx:xx -> ");
-            printf("%02d-%02d %02d:%02d ", month, day, hour, min);
+            cout << "xx-xx xx:xx -> ";
+            char buf[50];
+            sprintf(buf, "%02d-%02d %02d:%02d", month, day, hour, min);
+            cout << buf << " ";
         } else {
-            printf("%02d-%02d %02d:%02d -> ", month, day, hour, min);
+            char buf[50];
+            sprintf(buf, "%02d-%02d %02d:%02d", month, day, hour, min);
+            cout << buf << " -> ";
             addMinutes(month, day, hour, min, train.stopoverTimes[j-1]);
             if (j == train.stationNum - 1) {
-                printf("xx-xx xx:xx ");
+                cout << "xx-xx xx:xx ";
             } else {
-                printf("%02d-%02d %02d:%02d ", month, day, hour, min);
+                sprintf(buf, "%02d-%02d %02d:%02d", month, day, hour, min);
+                cout << buf << " ";
             }
         }
 
-        printf("%d ", totalPrice);
+        cout << totalPrice << " ";
 
         if (j == train.stationNum - 1) {
-            printf("x\n");
+            cout << "x\n";
         } else {
-            printf("%d\n", train.seatNum);
+            cout << train.seatNum << "\n";
             totalPrice += train.prices[j];
             addMinutes(month, day, hour, min, train.travelTimes[j]);
         }
     }
-    fflush(stdout);
+    cout.flush();
 }
 
 void handleDeleteTrain(const string& line) {
